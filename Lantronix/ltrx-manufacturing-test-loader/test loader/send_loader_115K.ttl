@@ -1,0 +1,50 @@
+/*
+ * Copyright 2013-2018, Lantronix, Inc.
+ * All Rights Reserved.
+*/
+
+
+messagebox "Select the Manufacturing Test Loader File" 'Select File' 0
+filenamebox 'Select Manufacturing Test Loader file' 0
+if result!=0 then
+	sprintf2 ldrfile inputstr
+	messagebox ldrfile 'Loader' 0
+endif
+
+
+result = 0
+clearscreen 1
+
+mpause 200
+dispstr 10 13 ' ' 10 13
+dispstr 'Polling ...'
+dispstr 10 13 ' ' 10 13
+
+setbaud 115200
+setflowctrl 2 
+
+setsync 1
+flushrecv
+timeout = 0
+mtimeout = 250
+
+messagebox "Assert the default line and reset/power on the board, release the default line once the file send is in progress" 'Assert' 0
+
+while 1
+  send '!SL' 13
+  recvln
+  if result = 1 then
+    strcompare inputstr 'G'
+    if result = 0 then
+      break
+    endif
+  endif
+endwhile
+
+pause 2
+
+dispstr 10 13 ' ' 10 13
+; dispstr 'Sending ' file ' '
+sendfile ldrfile 1
+; dispstr ' done'
+; dispstr 10 13
